@@ -223,7 +223,7 @@ function App() {
 
         const headerHtml = `
             <div class="flex justify-between items-center mb-6" style="padding: 0 1rem;">
-                <h2 class="text-3xl font-bold text-gray-800" style="font-size: 2.5rem; text-align: center; width: 100%;">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2 " style="font-size: 2.5rem; text-align: center; width: 100%;">
                     ${monthNames[month]} ${year}
                 </h2>
             </div>
