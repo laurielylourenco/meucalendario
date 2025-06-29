@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import html2canvas from 'html2canvas'; // Import html2canvas
 import { jsPDF } from 'jspdf'; // Import jsPDF
-
+import { Analytics } from "@vercel/analytics/react"
 // Main App Component
 function App() {
     // State to manage the currently displayed month and year
@@ -405,6 +405,7 @@ function App() {
 
     return (
         <div className="min-h-screen bg-gray-100 p-1 flex flex-col items-center justify-center font-sans">
+            <Analytics/> 
             {/* The Tailwind CSS CDN and Inter font should be included in public/index.html */}
             {/* Example of how to include in public/index.html, inside the <head> tag:
             <script src="https://cdn.tailwindcss.com"></script>
