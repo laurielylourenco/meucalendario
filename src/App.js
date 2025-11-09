@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import html2canvas from 'html2canvas'; // Import html2canvas
-import { jsPDF } from 'jspdf'; // Import jsPDF
 import { Analytics } from "@vercel/analytics/react"
 // Main App Component
 function App() {
