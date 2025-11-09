@@ -204,37 +204,97 @@ function App() {
         const tempDiv = document.createElement('div');
         tempDiv.style.position = 'absolute';
         tempDiv.style.left = '-9999px'; // Position off-screen
-        // Define width and height to match A4 landscape in pixels (approx. 200 DPI for good quality)
-        // A4 landscape: 297mm x 210mm. 1mm = ~3.78px at 200 DPI
-        const targetWidthPx = 297 * 3.78; // Approx. 1122 pixels
-        const targetHeightPx = 210 * 3.78; // Approx. 794 pixels
+        // Define width and height to match A4 landscape in pixels (approx. 300 DPI for better quality and larger text)
+        // A4 landscape: 297mm x 210mm. 1mm = ~5.67px at 300 DPI
+        const targetWidthPx = 297 * 5.67; // Approx. 1684 pixels
+        const targetHeightPx = 210 * 5.67; // Approx. 1191 pixels
+
+        
 
         tempDiv.style.width = `${targetWidthPx}px`;
         tempDiv.style.minHeight = `${targetHeightPx}px`;
+        tempDiv.style.height = `${targetHeightPx}px`; // Fixed height to fill page
         tempDiv.style.boxSizing = 'border-box'; // Ensures padding and border are included in width/height
         
         // Copy main styles from the visible container for consistency
         tempDiv.className = "w-full max-w-4xl bg-white shadow-lg rounded-xl p-6 mb-8";
         tempDiv.style.maxWidth = 'unset'; // Remove max-width restriction for PDF
         tempDiv.style.background = '#FFFFFF';
-        tempDiv.style.padding = '24px';
-        tempDiv.style.borderRadius = '12px';
-        tempDiv.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)';
+        tempDiv.style.padding = '4px 8px 8px 8px'; // Minimal top padding, more on sides/bottom
+        tempDiv.style.paddingTop = '4px'; // Very minimal top padding
+        tempDiv.style.borderRadius = '8px';
+        tempDiv.style.boxShadow = 'none'; // Remove shadow for cleaner PDF
+        tempDiv.style.display = 'flex';
+        tempDiv.style.flexDirection = 'column';
 
-        const headerHtml = `
-            <div class="flex justify-between items-center mb-6" style="padding: 0 1rem;">
-                <h2 class="text-3xl font-bold text-gray-800 mb-2 " style="font-size: 2.5rem; text-align: center; width: 100%;">
-                    ${monthNames[month]} ${year}
-                </h2>
-            </div>
-            <div class="grid grid-cols-7 gap-1 text-center font-semibold text-gray-600 mb-2" style="font-size: 1.1rem;">
-                ${weekdayNames.map(day => `<div class="py-2 px-1 rounded-md bg-gray-200" style="padding: 0.5rem;">${day}</div>`).join('')}
-            </div>
-        `;
-        tempDiv.innerHTML += headerHtml;
+        // Create header container for month name and weekdays
+        const headerContainer = document.createElement('div');
+        headerContainer.style.display = 'flex';
+        headerContainer.style.flexDirection = 'column';
+        headerContainer.style.flexShrink = '0';
+        headerContainer.style.width = '100%';
+        headerContainer.style.marginBottom = '0.5rem';
+        
+        // Month name container
+        const monthNameDiv = document.createElement('div');
+        monthNameDiv.style.display = 'flex';
+        monthNameDiv.style.justifyContent = 'center';
+        monthNameDiv.style.alignItems = 'center';
+        monthNameDiv.style.width = '100%';
+        monthNameDiv.style.padding = '0.5rem 0.25rem';
+        monthNameDiv.style.margin = '0';
+        monthNameDiv.style.marginBottom = '0.75rem'; // Increased spacing below month name
+        
+        const monthNameH2 = document.createElement('h2');
+        monthNameH2.style.fontSize = '2.8rem';
+        monthNameH2.style.fontWeight = 'bold';
+        monthNameH2.style.textAlign = 'center';
+        monthNameH2.style.width = '100%';
+        monthNameH2.style.margin = '0';
+        monthNameH2.style.padding = '0';
+        monthNameH2.style.lineHeight = '1.2';
+        monthNameH2.style.color = '#1f2937';
+        monthNameH2.textContent = `${monthNames[month]} ${year}`;
+        
+        monthNameDiv.appendChild(monthNameH2);
+        headerContainer.appendChild(monthNameDiv);
+        
+        // Weekdays container
+        const weekdaysDiv = document.createElement('div');
+        weekdaysDiv.style.display = 'grid';
+        weekdaysDiv.style.gridTemplateColumns = 'repeat(7, 1fr)';
+        weekdaysDiv.style.textAlign = 'center';
+        weekdaysDiv.style.fontSize = '1.9rem';
+        weekdaysDiv.style.fontWeight = '600';
+        weekdaysDiv.style.color = '#4b5563';
+        weekdaysDiv.style.margin = '0';
+        weekdaysDiv.style.marginBottom = '0.25rem';
+        weekdaysDiv.style.flexShrink = '0';
+        weekdaysDiv.style.gap = '2px';
+        weekdaysDiv.style.width = '100%';
+        
+        weekdayNames.forEach(day => {
+            const dayDiv = document.createElement('div');
+            dayDiv.style.padding = '0.4rem 0.2rem';
+            dayDiv.style.backgroundColor = '#e5e7eb';
+            dayDiv.style.borderRadius = '0.375rem';
+            dayDiv.textContent = day;
+            weekdaysDiv.appendChild(dayDiv);
+        });
+        
+        headerContainer.appendChild(weekdaysDiv);
+        tempDiv.appendChild(headerContainer);
 
         const gridContainer = document.createElement('div');
-        gridContainer.className = "grid grid-cols-7 gap-1";
+        gridContainer.className = "grid grid-cols-7";
+        gridContainer.style.flex = '1'; // Take remaining space
+        gridContainer.style.display = 'grid';
+        gridContainer.style.gridTemplateColumns = 'repeat(7, 1fr)'; // 7 equal columns
+        gridContainer.style.gridTemplateRows = 'repeat(6, 1fr)'; // 6 rows with equal height
+        gridContainer.style.height = '100%'; // Fill available height
+        gridContainer.style.gap = '2px'; // Minimal gap between cells
+        gridContainer.style.width = '100%'; // Full width
+        gridContainer.style.overflow = 'hidden'; // Prevent overflow
 
         calendarDays.forEach(dayInfo => {
             const dayDiv = document.createElement('div');
@@ -244,18 +304,25 @@ function App() {
                 ${dayInfo.dateString === formatDate(new Date()) ? 'border-2 border-blue-500' : ''}
             `;
             dayDiv.style.boxSizing = 'border-box';
-            dayDiv.style.minHeight = '150px'; // Increase min-height for days in PDF
-            dayDiv.style.padding = '0.75rem'; // Increase padding for days in PDF
+            dayDiv.style.width = '100%'; // Full width of grid cell
+            dayDiv.style.height = '100%'; // Fill grid cell height
+            dayDiv.style.minHeight = '0'; // Allow flex to work
+            dayDiv.style.minWidth = '0'; // Allow grid to shrink if needed
+            dayDiv.style.padding = '0.6rem'; // Optimized padding for more space
             dayDiv.style.position = 'relative'; // Make it a positioning context for absolute children
+            dayDiv.style.display = 'flex';
+            dayDiv.style.flexDirection = 'column';
+            dayDiv.style.overflow = 'hidden'; // Prevent content overflow
 
             const dateSpan = document.createElement('span');
             dateSpan.className = "font-bold text-lg mb-1";
             dateSpan.textContent = dayInfo.date.getDate();
-            dateSpan.style.fontSize = '1.5rem'; // Increase date font size in PDF
+            dateSpan.style.fontSize = '3.2rem'; // Larger date font size in PDF
             dateSpan.style.position = 'absolute'; // Position date absolutely
-            dateSpan.style.top = '0.5rem'; // Distance from top
-            dateSpan.style.left = '0.5rem'; // Distance from left
+            dateSpan.style.top = '0.4rem'; // Distance from top
+            dateSpan.style.left = '0.4rem'; // Distance from left
             dateSpan.style.zIndex = '1'; // Ensure date is above the note
+            dateSpan.style.fontWeight = 'bold';
             dayDiv.appendChild(dateSpan);
 
             const noteDiv = document.createElement('div');
@@ -264,11 +331,14 @@ function App() {
                 ${dayInfo.isCurrentMonth ? 'bg-gray-50' : 'bg-gray-100'}
             `;
             noteDiv.style.boxSizing = 'border-box';
-            noteDiv.style.padding = '0.5rem'; // Consistent padding for note content
-            noteDiv.style.fontSize = '0.9rem'; // Consistent font size for notes
+            noteDiv.style.padding = '0.8rem'; // Increased padding for note content
+            noteDiv.style.fontSize = '1.8rem'; // Larger font size for notes
             noteDiv.style.wordWrap = 'break-word';
             noteDiv.style.whiteSpace = 'pre-wrap';
-            noteDiv.style.marginTop = '2rem'; // Push note down to make space for the date
+            noteDiv.style.marginTop = '3.2rem'; // Push note down to make space for the date
+            noteDiv.style.lineHeight = '1.6'; // Better line spacing
+            noteDiv.style.minHeight = '0'; // Allow flex to work
+            noteDiv.style.flex = '1'; // Take remaining space in cell
             noteDiv.innerHTML = (events[dayInfo.dateString] || '').replace(/\n/g, '<br/>');
             dayDiv.appendChild(noteDiv);
 
@@ -302,13 +372,16 @@ function App() {
 
             // Capture the temporary element for the PDF
             const canvas = await window.html2canvas(tempCalendarElement, {
-                scale: 2, // Increase scale for better resolution in PDF
+                scale: 2, // Reduced scale for smaller file size while maintaining good quality
                 useCORS: true,
                 logging: false,
-                // Do not define width/height here, html2canvas will use the tempDiv style
+                width: tempCalendarElement.offsetWidth,
+                height: tempCalendarElement.offsetHeight,
+                // Ensure full element is captured
             });
 
-            const imgData = canvas.toDataURL('image/png');
+            // Use JPEG with quality 0.85 for smaller file size (PNG is uncompressed and much larger)
+            const imgData = canvas.toDataURL('image/jpeg', 0.85);
             // Change to landscape ('l') and use A4 landscape dimensions (297x210 mm)
             const pdf = new window.jspdf.jsPDF('l', 'mm', 'a4');
 
@@ -321,12 +394,12 @@ function App() {
 
             const ratio = imgCanvasWidth / imgCanvasHeight;
 
-            let imgPdfWidth = pdfWidth * 0.95; // Occupy 95% of PDF width for margins
+            let imgPdfWidth = pdfWidth * 0.99; // Occupy 99% of PDF width (minimal margins, maximum space)
             let imgPdfHeight = imgPdfWidth / ratio;
 
             // If the image is still too tall for the page, adjust by height
-            if (imgPdfHeight > pdfHeight * 0.95) { // Occupy 95% of height
-                imgPdfHeight = pdfHeight * 0.95;
+            if (imgPdfHeight > pdfHeight * 0.99) { // Occupy 99% of height (minimal margins, maximum space)
+                imgPdfHeight = pdfHeight * 0.99;
                 imgPdfWidth = imgPdfHeight * ratio;
             }
 
@@ -334,7 +407,7 @@ function App() {
             const xOffset = (pdfWidth - imgPdfWidth) / 2;
             const yOffset = (pdfHeight - imgPdfHeight) / 2;
 
-            pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgPdfWidth, imgPdfHeight);
+            pdf.addImage(imgData, 'JPEG', xOffset, yOffset, imgPdfWidth, imgPdfHeight);
 
             const pdfFileName = `calendario-${formatDate(currentDate)}.pdf`;
             const pdfBlob = pdf.output('blob');
